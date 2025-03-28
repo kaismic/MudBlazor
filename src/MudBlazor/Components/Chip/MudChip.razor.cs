@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using MudBlazor.Services;
 using MudBlazor.State;
 using MudBlazor.Utilities;
 
@@ -15,11 +14,6 @@ namespace MudBlazor;
 /// <seealso cref="MudChipSet{T}"/>
 public partial class MudChip<T> : MudComponentBase, IAsyncDisposable
 {
-    [Inject]
-    private IKeyInterceptorService KeyInterceptorService { get; set; } = null!;
-
-    private string _chipContainerId = $"chip-container-{Guid.NewGuid()}";
-
     internal readonly ParameterState<bool> SelectedState;
 
     public MudChip()
@@ -130,18 +124,7 @@ public partial class MudChip<T> : MudComponentBase, IAsyncDisposable
         return attributes;
     }
 
-    internal Variant GetVariant()
-    {
-        var chipSetVariant = ChipSet?.Variant ?? MudBlazor.Variant.Filled;
-        var variant = Variant ?? chipSetVariant;
-        return variant switch
-        {
-            MudBlazor.Variant.Text => SelectedState.Value ? MudBlazor.Variant.Filled : MudBlazor.Variant.Text,
-            MudBlazor.Variant.Filled => SelectedState.Value ? MudBlazor.Variant.Text : MudBlazor.Variant.Filled,
-            MudBlazor.Variant.Outlined => MudBlazor.Variant.Outlined,
-            _ => MudBlazor.Variant.Outlined
-        };
-    }
+    internal Variant GetVariant() => Variant ?? ChipSet?.Variant ?? MudBlazor.Variant.Filled;
 
     private Color GetColor()
     {
@@ -411,24 +394,6 @@ public partial class MudChip<T> : MudComponentBase, IAsyncDisposable
         }
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (firstRender)
-        {
-            var options = new KeyInterceptorOptions(
-                "mud-chip",
-                [
-                    new(" ", preventDown: "key+none", preventUp: "key+none"),
-                    new("Backspace", preventDown: "key+none"),
-                    new("Delete", preventDown: "key+none")
-                ]);
-
-            await KeyInterceptorService.SubscribeAsync(_chipContainerId, options, keyDown: HandleKeyDownAsync);
-        }
-    }
-
     protected internal async Task OnClickAsync(MouseEventArgs ev)
     {
         if (ChipSet?.ReadOnly == true || IsAnchor)
@@ -459,24 +424,6 @@ public partial class MudChip<T> : MudComponentBase, IAsyncDisposable
         StateHasChanged();
     }
 
-    private async Task HandleKeyDownAsync(KeyboardEventArgs args)
-    {
-        if (GetDisabled() || GetReadOnly())
-        {
-            return;
-        }
-
-        switch (args.Key)
-        {
-            case " ":
-                await OnClickAsync(new MouseEventArgs());
-                break;
-            case "Backspace" or "Delete":
-                await OnCloseAsync(new MouseEventArgs());
-                break;
-        }
-    }
-
     /// <summary>
     /// Releases unused resources.
     /// </summary>
@@ -487,11 +434,6 @@ public partial class MudChip<T> : MudComponentBase, IAsyncDisposable
             if (ChipSet is not null)
             {
                 await ChipSet.RemoveAsync(this);
-            }
-
-            if (IsJSRuntimeAvailable)
-            {
-                await KeyInterceptorService.UnsubscribeAsync(_chipContainerId);
             }
         }
         catch (Exception)
