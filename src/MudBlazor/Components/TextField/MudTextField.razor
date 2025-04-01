@@ -17,7 +17,8 @@
                      Disabled="@GetDisabledState()"
                      Margin="@Margin"
                      Required="@Required"
-                     ForId="@InputElementId">
+                     ForId="@InputElementId"
+                     Style="@Style">
         <InputContent>
             <CascadingValue Name="SubscribeToParentForm" Value="false" IsFixed="true">
                 @if (_mask == null)
@@ -31,7 +32,6 @@
                               Lines="@Lines"
                               MaxLines="@MaxLines"
                               AutoGrow="@AutoGrow"
-                              Style="@Style"
                               Variant="@Variant"
                               Typo="@Typo"
                               TextUpdateSuppression="@TextUpdateSuppression"
@@ -79,7 +79,6 @@
                              InputType="@InputType"
                              InputMode="@InputMode"
                              Lines="@Lines"
-                             Style="@Style"
                              Variant="@Variant"
                              Typo="Typo"
                              TextUpdateSuppression="@TextUpdateSuppression"
