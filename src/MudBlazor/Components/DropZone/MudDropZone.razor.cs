@@ -196,7 +196,7 @@ namespace MudBlazor
             return newIndex;
         }
 
-        private T[] GetItems()
+        public T[] GetItems()
         {
             var predicate = ItemsSelector ?? (item => Container is not null && Container.ItemsSelector is not null && Container.ItemsSelector(item, Identifier));
 
