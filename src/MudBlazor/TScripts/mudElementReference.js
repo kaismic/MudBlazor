@@ -155,13 +155,16 @@ class MudElementReference {
             e.preventDefault();
             element.blur();
             if (dotNetReference) {
-                dotNetReference.invokeMethodAsync('CallOnBlurredAsync');
+                // make sure blur events only happen when heap is unlocked
+                requestAnimationFrame(() => {
+                    dotNetReference.invokeMethodAsync('CallOnBlurredAsync');
+                });                
             }
             else {
                 console.error("No dotNetReference found for iosKeyboardFocus");
             }
         }
-        element.addEventListener('blur', element._mudBlurHandler);
+        if (element) element.addEventListener('blur', element._mudBlurHandler);
     }
     // dispose event
     removeOnBlurEvent(element, dotnetRef) {
